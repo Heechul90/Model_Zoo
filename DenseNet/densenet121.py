@@ -21,12 +21,12 @@ kv=mx.kv.create("dist")
 ##################
 
 from mxnet.gluon.model_zoo import vision
-net = vision.resnet152_v1()
+# net = vision.resnet152_v1()
 # net = vision.resnet152_v2()
-# net = vision.vgg11()
+net = vision.vgg11(classes=100)
 # net = vision.vgg11_bn()
 # net = vision.alexnet()
-net = vision.densenet121()
+net = vision.densenet121(classes=100)
 # net = vision.squeezenet1_0()
 # net = vision.inception_v3()
 # net = vision.mobilenet1_0()
