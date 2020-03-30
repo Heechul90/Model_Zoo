@@ -10,7 +10,8 @@ wget http://www.image-net.org/challenges/LSVRC/2012/nnoupb/ILSVRC2012_img_train.
 
 
 백그라운드 실행
+nohup launch.py 경로 --hostfile host파일 경로 -n host수 --launcher mpi python 파일명 > 로그기록  &
+
 nohup python ~/anaconda3/lib/python3.7/site-packages/mxnet/tools/launch.py --hostfile ../hostone_33 -n 1 --launcher mpi python squeezenet1_0_gpu.py > squeezenet1_0_gpu_one.log  &
 
 
-nohup python ~/anaconda3/lib/python3.7/site-packages/mxnet/tools/launch.py --hostfile ../../host/hostone/host35 -n 1 --launcher mpi python resnet152_v2_03.py > test_v2_03.log  &

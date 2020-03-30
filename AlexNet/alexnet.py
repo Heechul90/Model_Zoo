@@ -1,6 +1,6 @@
-################## binary classification
-# 개와 고양이 이미지를 가지고 분류 학습해보기
-
+################## Alexnet
+################## classification
+################## minst 분류
 
 
 ################## 필요 함수
@@ -11,8 +11,6 @@ import numpy as np
 from mxnet import nd, autograd
 from mxnet import gluon
 from mxnet.gluon import nn
-
-
 
 ##################
 # Hyperparameter #
@@ -26,9 +24,10 @@ batch_size=64
 # Hyperparameter #
 ##################
 
-################## model(alexnet)
+################## model
 from mxnet.gluon.model_zoo import vision
-net = vision.alexnet(classes=1, pretrained=False, ctx=ctx)
+net = vision.alexnet(classes=10, pretrained=False, ctx=ctx)
+
 
 ################## 그래프
 import gluoncv
@@ -36,25 +35,21 @@ inputShape = (1,3,224,224)
 gluoncv.utils.viz.plot_network(net, shape=inputShape)
 
 
-################## 데이터(개와 고양이 이미지)
-# path 설성
-train_path = '../dataset/dogs-vs-cats2/train'
-test_path = '../dataset/dogs-vs-cats2/test'
-
-# transformer 설정
+##### 전처리 ##############################################
 def transformer(data, label):
     data = mx.image.imresize(data, 224, 224)
-    data = mx.nd.transpose(data.astype('float32'), (2, 0, 1)) / 255
+    data = mx.nd.transpose(data, (2, 0, 1))
+    data = data.astype(np.float32)
     return data, label
 
-# train data, test data 가져오기
+batch_size = 64
 train_data = gluon.data.DataLoader(
-    gluon.data.vision.datasets.ImageFolderDataset(train_path, transform = transformer),
-    batch_size = batch_size, shuffle = True, last_batch = 'discard')
+    gluon.data.vision.MNIST('dataset/MNIST', train = True, transform = transformer),
+    batch_size = batch_size, shuffle = False, last_batch = 'discard')
 
 test_data = gluon.data.DataLoader(
-    gluon.data.vision.datasets.ImageFolderDataset(test_path, transform=transformer),
-    batch_size=batch_size, shuffle=False, last_batch='discard')
+    gluon.data.vision.MNIST('dataset/MNIST', train = False, transform = transformer),
+    batch_size = batch_size, shuffle = True, last_batch = 'discard')
 
 # 데이터 확인하기
 for data, label in train_data:
@@ -66,7 +61,7 @@ print(data.shape, label.shape)
 
 ### graph
 from gluoncv.utils import viz
-viz.plot_image(data[63][2])  # index 0 is image, 1 is label
+viz.plot_image(data[0][0])  # index 0 is image, 1 is label
 
 
 
@@ -77,7 +72,7 @@ net.collect_params().initialize(mx.init.Xavier(), ctx = ctx)
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'momentum': 0.9, 'learning_rate': .1})
 
 # 오차 함수
-loss_function = gluon.loss.SigmoidBinaryCrossEntropyLoss()
+loss_function = gluon.loss.SoftmaxCrossEntropyLoss()
 
 def evaluate_accuracy(data_iterator, net):
     acc = mx.metric.Accuracy()
